@@ -5,7 +5,9 @@ class localization:
 	
 	# this is our last position
 	position = [0, 0, 0]
-	beaconPosition = []
+	# List of beacon tuples = ( beaconID, beaconPosition )
+	# investigate possibility of identifying beacon by position
+	beaconList = []
 	
 	# uncertainties
 	positionUncert
@@ -29,23 +31,24 @@ class localization:
 		inertialEst = self.position + getfromDVL()*deltaT + 0.5*getFromIMU()*deltaT*deltaT
 	
 		# relative estimation
-		relativeEst = getFromLBL()
+		relativeEst = multilat()
 		
 		
+	
+
+	
+	def Multilat(self):
+	
+		distance = []
+		# TODO - grab algorithm for multilateration
+		for b in self.beaconList:
+			distance.append( (b[1], calcDist(b[0]) ) )
+	
+	
 	
 	def GetFromIMU(self):
 	
 	def GetFromDVL(self):
 	
-	def getFromLBL(self):
+	def GetFromLBL(self, beacon):
 		
-		distance = []
-		for b in beaconPosition:
-			distance.append( (b[1], calcDist(b[0]) )
-			
-		
-		
-	def calcDist(self, beacon):
-	
-	
-	def 

@@ -5,6 +5,9 @@ Created on Mon Dec  7 15:57:34 2020
 @author: hugo0
 
 Important notes:
+    Sensors will be publishing at a set frequency.
+    Our goal is to adjust 
+    
     Since we have access to position, speed and acceleration discretely specified
     in each axis, and since we can assume our unmaned vehicle to be free floating in water
     making movement in each axis independent of movement in the others, we simplify our problem
@@ -49,6 +52,8 @@ class Kalman_UUV():
     
     def __init__(self):
         
+        # TODO get frequency from ROS
+        # TODO deltaT for A/B from frequency
         self.A = np.array([[1, 0], [0, 1]])
         self.B = np.array([[0, 0]]).T
         
@@ -65,10 +70,15 @@ class Kalman_UUV():
         self.B[0][0] = (1/2)*deltaT**2
         self.B[1][0] = deltaT
         
+        self.getSpeed()
+        self.getAccel()
+        
+        xest, varxest = self.predict()
         
     
+    
+    
     def predict(self):
-        
         
         xest = np.add( np.matmul(self.A, self.X), np.matmul(self.B, self.accel))
         
@@ -76,8 +86,16 @@ class Kalman_UUV():
         # looks menacing but means:
         #    varxest = A*varX*At + B*varaccel*Bt
         varxest = np.add( np.matmul(np.matmul(self.A, self.Xvar), self.A.T), np.matmul(np.matmul(self.B, self.accelvar), self.B.T))
-                      
+        
+        return xest, varxest
+    
+    
+    
+    def matching(self):
         return
+    
+    
+    
     
     
     def getDelta(self):
@@ -93,6 +111,9 @@ class Kalman_UUV():
     # provisionally, read from file IMU.txt
     def getAccel(self):
         return self.IMU.readline()
+    
+    def getLBL(self):
+        return
     
 
 print(np.diag([1,2,3]))    

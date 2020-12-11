@@ -27,8 +27,6 @@ Important notes:
 """
 
 import numpy as np
-from time import perf_counter
-
 
 
 class Kalman_UUV():
@@ -36,16 +34,6 @@ class Kalman_UUV():
     
     #DVL = open('DLV.txt', 'r')
     #IMU = open('IMU.txt', 'r')
-    lastTime = 0
-    
-    # X will be our position/speed vector
-    # first line represents position in each axis (x, y)
-    # second line represents speed in each axis (vx, vy)
-    Xvar = np.array([[0,0], [0,0]])
-    # accel will be our acceleration vector
-    # technically the control variable, since we have no reliable way to get odometry from the thruster
-    # accel represents linear acceleration in each axis (ax, ay)
-
 
     
     # TODO add the pose variables
@@ -54,8 +42,6 @@ class Kalman_UUV():
     
     def __init__(self, initialx, initialy, initialvx, initialvy, dt, accelvarx, accelvary):
         
-        # TODO get frequency from ROS
-        # TODO deltaT for A/B from frequency
         self.A = np.array([[1, 0, dt, 0],
                            [0, 0, 1, 0],
                            [0, 1, 0, dt],
@@ -145,10 +131,6 @@ class Kalman_UUV():
     
     
     
-    
-    
-    def getDelta(self):
-        return perf_counter() - self.lastTime
     
     # get reading from DVL
     # provisionally, read from file DVL.txt

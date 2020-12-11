@@ -41,21 +41,42 @@ class Kalman_UUV():
     # X will be our position/speed vector
     # first line represents position in each axis (x, y)
     # second line represents speed in each axis (vx, vy)
-    X = np.array([[0,0], [0,0]])
+    Xvar = np.array([[0,0], [0,0]])
     # accel will be our acceleration vector
     # technically the control variable, since we have no reliable way to get odometry from the thruster
     # accel represents linear acceleration in each axis (ax, ay)
-    accel = np.array([0, 0])
+
+
     
     # TODO add the pose variables
+    # ORI = np.array([[0, 0, 0, 0]])
+    # ORIvar = np.array
     
-    
-    def __init__(self):
+    def __init__(self, initialx, initialy, initialvx, initialvy, dt, accelvarx, accelvary):
         
         # TODO get frequency from ROS
         # TODO deltaT for A/B from frequency
-        self.A = np.array([[1, 0], [0, 1]])
-        self.B = np.array([[0, 0]]).T
+        self.A = np.array([[1, 0, dt, 0],
+                           [0, 0, 1, 0],
+                           [0, 1, 0, dt],
+                           [0, 0, 0, 1]])
+        
+        self.B = np.array([[(1/2)*(dt**2), 0],
+                           [dt, 0],
+                           [0, (1/2)*(dt**2)],
+                           [0, dt]])
+        
+        self.H = np.eye(4)
+        
+        self.accelvar = np.array([[accelvarx, 0],
+                                 [0, accelvary]])
+        
+        self.X = np.array([[initialx],
+                           [initialy],
+                           [initialvx],
+                           [initialvy]])
+        
+        self.P = np.eye(4)
         
         return
     
@@ -74,11 +95,19 @@ class Kalman_UUV():
         self.getAccel()
         
         xest, varxest = self.predict()
-        
+        self.update(xest, varxest)
     
     
     
-    def predict(self):
+    def predictORI(self):
+        return
+    
+    def updateORI(self):
+        return
+    
+    
+    
+    def predictPOS(self):
         
         xest = np.add( np.matmul(self.A, self.X), np.matmul(self.B, self.accel))
         
@@ -91,8 +120,28 @@ class Kalman_UUV():
     
     
     
-    def matching(self):
-        return
+    def updatePOS(self, xest, varxest):
+        
+        # Y is the innovation of our filter
+        # getLBL should return a line matrix of positions
+        # Multiplying our xest by H will remove the speed and return a line
+        #   matrix with the positions from the prediction step 
+        measx, measvar = self.getLBL()
+        Y = measx - np.matmul(self.H, xest)
+
+        
+        # TODO figure out wtf that R is.... it's a variance from somewhere
+        Sk = np.add(np.matmul(np.matmul(self.H, self.Xvar), self.H.T), measvar)
+        
+                
+        # K is our Kalman gain
+        K = np.matmul(np.matmul(self.Xvar, self.H.T), np.linalg.inv(Sk))
+        
+        
+        self.X = np.add(self.Xest, np.matmul(K, Y)) 
+        self.Xvar = np.matmul(np.subtract(np.eye(), np.matmul(K, self.H)), self.Xvar)
+        
+        return 
     
     
     

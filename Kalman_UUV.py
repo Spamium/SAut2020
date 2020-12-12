@@ -40,48 +40,33 @@ class Kalman_UUV():
     # ORI = np.array([[0, 0, 0, 0]])
     # ORIvar = np.array
     
-    def __init__(self, initialx, initialy, initialvx, initialvy, dt, accelvarx, accelvary):
+    def __init__(self, initialpos, initialv, dt, accelvar):
         
-        self.A = np.array([[1, 0, dt, 0],
-                           [0, 0, 1, 0],
-                           [0, 1, 0, dt],
-                           [0, 0, 0, 1]])
+        self.A = np.array([[1, dt],
+                           [0, 1]])
         
-        self.B = np.array([[(1/2)*(dt**2), 0],
-                           [dt, 0],
-                           [0, (1/2)*(dt**2)],
-                           [0, dt]])
+        self.B = np.array([[(1/2)*(dt**2)],
+                           [dt]])
         
-        self.H = np.eye(4)
+        self.H = np.eye(2)
         
-        self.accelvar = np.array([[accelvarx, 0],
-                                 [0, accelvary]])
+        self.accelvar = accelvar
         
-        self.X = np.array([[initialx],
-                           [initialy],
-                           [initialvx],
-                           [initialvy]])
+        self.X = np.array([[initialpos],
+                           [initialv]])
         
-        self.P = np.eye(4)
+        self.P = np.eye(2)
         
         return
     
     
     
-    def Kalmancycle(self):
-        deltaT = self.getDelta()
-        self.lastTime = perf_counter()
-        # Set values for A matrix, top-right corner is dt
-        self.A[0][1] = deltaT
-        # Set values for B column array, top value is half of dt squared, bottom value is simply dt
-        self.B[0][0] = (1/2)*deltaT**2
-        self.B[1][0] = deltaT
+    def Kalmancycle(self, posmeas, varpos, velmeas, varvel):
         
-        self.getSpeed()
-        self.getAccel()
-        
-        xest, varxest = self.predict()
-        self.update(xest, varxest)
+        self.predictPOS()
+        # TODO get stuff from LBL for update
+        self.getLBL()
+        self.updatePOS(posmeas, varpos, velmeas, varvel)
     
     
     
@@ -95,37 +80,34 @@ class Kalman_UUV():
     
     def predictPOS(self):
         
-        xest = np.add( np.matmul(self.A, self.X), np.matmul(self.B, self.accel))
+        self.X = np.matmul(self.A, self.X)
         
         # Big matrix multiplication incoming
         # looks menacing but means:
         #    varxest = A*varX*At + B*varaccel*Bt
-        varxest = np.add( np.matmul(np.matmul(self.A, self.Xvar), self.A.T), np.matmul(np.matmul(self.B, self.accelvar), self.B.T))
+        self.P = np.add( np.matmul(np.matmul(self.A, self.P), self.A.T), np.matmul(np.matmul(self.B, self.accelvar), self.B.T))
         
-        return xest, varxest
+        return
     
     
     
-    def updatePOS(self, xest, varxest):
+    def updatePOS(self, posmeas, varpos, velmeas, varvel):
         
         # Y is the innovation of our filter
-        # getLBL should return a line matrix of positions
-        # Multiplying our xest by H will remove the speed and return a line
-        #   matrix with the positions from the prediction step 
-        measx, measvar = self.getLBL()
-        Y = measx - np.matmul(self.H, xest)
+        Y = posmeas - self.X
 
-        
+        R = np.array([[varpos, 0],
+                      [0, varvel]])
         # TODO figure out wtf that R is.... it's a variance from somewhere
-        Sk = np.add(np.matmul(np.matmul(self.H, self.Xvar), self.H.T), measvar)
+        Sk = np.add( self.P, R)
         
                 
         # K is our Kalman gain
-        K = np.matmul(np.matmul(self.Xvar, self.H.T), np.linalg.inv(Sk))
+        K = np.matmul(self.Xvar, np.linalg.inv(Sk))
         
         
-        self.X = np.add(self.Xest, np.matmul(K, Y)) 
-        self.Xvar = np.matmul(np.subtract(np.eye(), np.matmul(K, self.H)), self.Xvar)
+        self.X = np.add(self.X, np.matmul(K, Y)) 
+        self.P = np.matmul(np.subtract(np.eye(), K), self.P)
         
         return 
     

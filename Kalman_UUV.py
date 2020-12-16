@@ -40,7 +40,7 @@ class Kalman_UUV():
     # ORI = np.array([[0, 0, 0, 0]])
     # ORIvar = np.array
     
-    def __init__(self, posvec, velvec, dt, accelvec):
+    def __init__(self, posvec, velvec, accelvec, dt, avar):
         
         initialposx = posvec[0]
         initialposy = posvec[1]
@@ -50,9 +50,13 @@ class Kalman_UUV():
         initialvy = velvec[1]
         initialomega = velvec[2]
         
-        axvar = accelvec[0]
-        ayvar = accelvec[1]
-        alpha = accelvec[2]
+        initialax = accelvec[0]
+        initialay = accelvec[1]
+        initialalpha = accelvec[2]
+        
+        axvar = avar[0]
+        ayvar = avar[1]
+        alpha = avar[2]
         
         self.F = np.array([[1, 0, 0, dt, 0, 0],
                            [0, 1, 0, 0, dt, 0],

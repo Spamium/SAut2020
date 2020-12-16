@@ -67,7 +67,7 @@ class Kalman_UUV():
                            [dt, 0, 0],
                            [0, dt, 0],
                            [0, 0, dt]])
-        
+        # ok estamos a comparar com x,y,theta,vx,vy e ... ? 
         self.H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 1, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 1, 0, 0, 0, 0, 0, 0],

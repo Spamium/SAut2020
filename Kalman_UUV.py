@@ -145,6 +145,7 @@ class Kalman_UUV():
         velvary = dvlvar[1]
         varomega = imuvar[1] 
         
+        # Vector medido
         meas = np.array([[posx],
                          [posy],
                          [theta],
@@ -155,6 +156,7 @@ class Kalman_UUV():
         # Y is the innovation of our filter
         Y = np.subtract(meas, self.X)
         
+        # V é o conjunto das variancias arrumadas na mesma ordem que o vector medido
         V = np.array([[posvarx, 0, 0, 0, 0, 0],
                       [0, posvary, 0, 0, 0, 0],
                       [0, 0, vartheta, 0, 0, 0],

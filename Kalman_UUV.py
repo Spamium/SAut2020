@@ -148,7 +148,7 @@ class Kalman_UUV():
                          [omega]])
         
         # Y is the innovation of our filter
-        Y = np.subtract(posmeas, self.X)
+        Y = np.subtract(meas, self.X)
         
         V = np.array([[posvarx, 0, 0, 0, 0, 0],
                       [0, posvary, 0, 0, 0, 0],
@@ -156,14 +156,16 @@ class Kalman_UUV():
                       [0, 0, 0, velvarx, 0, 0],
                       [0, 0, 0, 0, velvary, 0],
                       [0, 0, 0, 0, 0, varomega]])
+
+        # R = H * H transposed * V      
+        R = np.matmul(np.matmul(self.H, self.H.T), V)
         
-        R = np.matmul(np.matmul(H, H.T), V)
-        # TODO figure out wtf that R is.... it's a variance from somewhere
-        Sk = np.add( self.P, R)
-        
+        # Sk = H * P * H transposed + R
+        Sk = np.add( np.matmul(np.matmul(self.H, self.P), self.H.T), R)
                 
         # K is our Kalman gain
-        K = np.matmul(self.Xvar, np.linalg.inv(Sk))
+        # K = P * H transposed * Sk inverse
+        K = np.matmul(np.matmul(self.P, self.H.T), np.linalg.inv(Sk))
         
         
         self.X = np.add(self.X, np.matmul(K, Y)) 

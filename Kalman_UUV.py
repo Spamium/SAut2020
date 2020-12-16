@@ -140,13 +140,24 @@ class Kalman_UUV():
         velvary = dvlvar[1]
         varomega = imuvar[1] 
         
-        
+        meas = np.array([[posx],
+                         [posy],
+                         [theta],
+                         [velx],
+                         [vely],
+                         [omega]])
         
         # Y is the innovation of our filter
-        Y = posmeas - self.X
-
-        R = np.array([[varpos, 0],
-                      [0, varvel]])
+        Y = np.subtract(posmeas, self.X)
+        
+        V = np.array([[posvarx, 0, 0, 0, 0, 0],
+                      [0, posvary, 0, 0, 0, 0],
+                      [0, 0, vartheta, 0, 0, 0],
+                      [0, 0, 0, velvarx, 0, 0],
+                      [0, 0, 0, 0, velvary, 0],
+                      [0, 0, 0, 0, 0, varomega]])
+        
+        R = np.matmul(np.matmul(H, H.T), V)
         # TODO figure out wtf that R is.... it's a variance from somewhere
         Sk = np.add( self.P, R)
         

@@ -40,16 +40,28 @@ class Kalman_UUV():
     # ORI = np.array([[0, 0, 0, 0]])
     # ORIvar = np.array
     
-    def __init__(self, initialpos, initialv, dt, accelvar):
+    def __init__(self, posvec, velvec, dt, accelvec):
         
-        self.A = np.array([[1, 0, 0, dt, 0, 0],
+        initialposx = posvec[0]
+        initialposy = posvec[1]
+        initialtheta = posvec[2]
+        
+        initialvx = velvec[0]
+        initialvy = velvec[1]
+        initialomega = velvec[2]
+        
+        axvar = accelvec[0]
+        ayvar = accelvec[1]
+        alpha = accelvec[2]
+        
+        self.F = np.array([[1, 0, 0, dt, 0, 0],
                            [0, 1, 0, 0, dt, 0],
                            [0, 0, 1, 0, 0, dt, 0],
                            [0, 0, 0, 1, 0, 0],
                            [0, 0, 0, 0, 1, 0],
                            [0, 0, 0, 0, 0, 1]])
         
-        self.B = np.array([[(dt**2)/2, 0, 0],
+        self.G = np.array([[(dt**2)/2, 0, 0],
                            [0, (dt**2)/2, 0],
                            [0, (dt**2)/2],
                            [dt, 0, 0],
@@ -63,12 +75,21 @@ class Kalman_UUV():
                            [0, 0, 0, 0, 1, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 1, 0, 0, 0]])
         
-        self.accelvar = accelvar
+        self.accelvar = np.array([[axvar, 0, 0],
+                                  [0, ayvar, 0]
+                                  [0, 0, alpha]])
         
-        self.X = np.array([[initialpos],
-                           [initialv]])
+        self.X = np.array([[initialposx],
+                           [initialposy],
+                           [initialtheta],
+                           [initialvx],
+                           [initialvy],
+                           [initialomega],
+                           [initialax],
+                           [initialay],
+                           [initialalpha]])
         
-        self.P = np.eye(2)
+        self.P = np.matmul(np.matmul(self.G, self.accelvar), self.G.T)
         
         return
     
@@ -81,30 +102,23 @@ class Kalman_UUV():
         self.getLBL()
         self.updatePOS(posmeas, varpos, velmeas, varvel)
     
-    
-    
-    def predictORI(self):
-        return
-    
-    def updateORI(self):
-        return
-    
-    
-    
     def predictPOS(self):
         
-        self.X = np.matmul(self.A, self.X)
+        self.X = np.matmul(self.F, self.X)
         
         # Big matrix multiplication incoming
         # looks menacing but means:
         #    varxest = A*varX*At + B*varaccel*Bt
-        self.P = np.add( np.matmul(np.matmul(self.A, self.P), self.A.T), np.matmul(np.matmul(self.B, self.accelvar), self.B.T))
+        self.P = np.add( np.matmul(np.matmul(self.F, self.P), self.F.T), np.matmul(np.matmul(self.G, self.accelvar), self.G.T))
         
         return
     
     
     
     def updatePOS(self, posmeas, varpos, velmeas, varvel):
+        
+        # TODO 
+        # ON UPDATE WE GET THE VARIANCE FOR THE MEASUREMENTS AS WELL!!!!
         
         # Y is the innovation of our filter
         Y = posmeas - self.X

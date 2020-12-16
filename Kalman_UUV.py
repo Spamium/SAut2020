@@ -167,9 +167,10 @@ class Kalman_UUV():
         # K = P * H transposed * Sk inverse
         K = np.matmul(np.matmul(self.P, self.H.T), np.linalg.inv(Sk))
         
-        
+        # X = X-1 + K * Y
         self.X = np.add(self.X, np.matmul(K, Y)) 
-        self.P = np.matmul(np.subtract(np.eye(), K), self.P)
+        # P = (I - K * H) * P-1
+        self.P = np.matmul(np.subtract(np.eye(3), K), self.P)
         
         return 
     

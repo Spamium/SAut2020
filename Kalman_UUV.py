@@ -79,7 +79,7 @@ class Kalman_UUV():
                            [0, 0, 0, 0, 1, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 1, 0, 0, 0]])
         
-        self.accelvar = np.array([[axvar, 0, 0],
+        self.Q = np.array([[axvar, 0, 0],
                                   [0, ayvar, 0]
                                   [0, 0, alpha]])
         
@@ -93,7 +93,7 @@ class Kalman_UUV():
                            [initialay],
                            [initialalpha]])
         
-        self.P = np.matmul(np.matmul(self.G, self.accelvar), self.G.T)
+        self.P = np.matmul(np.matmul(self.G, self.Q), self.G.T)
         
         return
     
@@ -113,16 +113,34 @@ class Kalman_UUV():
         # Big matrix multiplication incoming
         # looks menacing but means:
         #    varxest = A*varX*At + B*varaccel*Bt
-        self.P = np.add( np.matmul(np.matmul(self.F, self.P), self.F.T), np.matmul(np.matmul(self.G, self.accelvar), self.G.T))
+        self.P = np.add( np.matmul(np.matmul(self.F, self.P), self.F.T), np.matmul(np.matmul(self.G, self.Q), self.G.T))
         
         return
     
     
     
-    def updatePOS(self, posmeas, varpos, velmeas, varvel):
+    def updatePOS(self, lblmeas, lblvar, dvlmeas, dvlvar, imumeas, imuvar):
         
         # TODO 
         # ON UPDATE WE GET THE VARIANCE FOR THE MEASUREMENTS AS WELL!!!!
+        
+        posx = lblmeas[0]
+        posy = lblmeas[1]
+        theta = imumeas[0]
+        
+        velx = dvlmeas[0]
+        vely = dvlmeas[1]
+        omega = imumeas[1]
+        
+        posvarx = lblvar[0]
+        posvary = lblvar[1]
+        vartheta = imuvar[0]
+        
+        velvarx = dvlvar[0]
+        velvary = dvlvar[1]
+        varomega = imuvar[1] 
+        
+        
         
         # Y is the innovation of our filter
         Y = posmeas - self.X

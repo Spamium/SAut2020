@@ -71,7 +71,12 @@ class Kalman_UUV():
                            [dt, 0, 0],
                            [0, dt, 0],
                            [0, 0, dt]])
+        
         # ok estamos a comparar com x,y,theta,vx,vy e ... ? 
+        # X = [x, y, theta, velx, vely, omega, ax, ay, alpha]
+        # Numero de linhas em H é o número de variáveis que medimos:
+        #   - x, y, theta, velx, vely, omega
+        # Numero de colunas em H é o número de componentes em X
         self.H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 1, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 1, 0, 0, 0, 0, 0, 0],

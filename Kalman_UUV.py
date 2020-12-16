@@ -42,13 +42,26 @@ class Kalman_UUV():
     
     def __init__(self, initialpos, initialv, dt, accelvar):
         
-        self.A = np.array([[1, dt],
-                           [0, 1]])
+        self.A = np.array([[1, 0, 0, dt, 0, 0],
+                           [0, 1, 0, 0, dt, 0],
+                           [0, 0, 1, 0, 0, dt, 0],
+                           [0, 0, 0, 1, 0, 0],
+                           [0, 0, 0, 0, 1, 0],
+                           [0, 0, 0, 0, 0, 1]])
         
-        self.B = np.array([[(1/2)*(dt**2)],
-                           [dt]])
+        self.B = np.array([[(dt**2)/2, 0, 0],
+                           [0, (dt**2)/2, 0],
+                           [0, (dt**2)/2],
+                           [dt, 0, 0],
+                           [0, dt, 0],
+                           [0, 0, dt]])
         
-        self.H = np.eye(2)
+        self.H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 1, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 1, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 1, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 1, 0, 0, 0]])
         
         self.accelvar = accelvar
         

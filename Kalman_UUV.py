@@ -40,7 +40,14 @@ class Kalman_UUV():
     # ORI = np.array([[0, 0, 0, 0]])
     # ORIvar = np.array
     
-    def __init__(self, posvec, velvec, accelvec, dt, avar):
+    def __init__(self):
+        
+        posvec = self.get_pos()
+        velvec = self.get_speed()
+        accelvec = self.get_accel()
+        dt = self.get_dt()
+        avar = self.get_accelvar()
+        
         
         initialposx = posvec[0]
         initialposy = posvec[1]
@@ -186,17 +193,21 @@ class Kalman_UUV():
     
     # get reading from DVL
     # provisionally, read from file DVL.txt
-    def getSpeed(self):
+    def get_speed(self):
         return self.DVL.readline()
         
+    def get_accelvar(self):
+        return
         
     # get reading from IMU
     # provisionally, read from file IMU.txt
-    def getAccel(self):
+    def get_accel(self):
         return self.IMU.readline()
     
-    def getLBL(self):
+    def get_pos(self):
         return
     
+    def get_dt(self):
+        return
 
-print(np.diag([1,2,3]))    
+filter = Kalman_UUV()

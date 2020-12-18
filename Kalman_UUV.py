@@ -31,9 +31,9 @@ import numpy as np
 
 class Kalman_UUV():
     
-    
-    #DVL = open('DLV.txt', 'r')
-    #IMU = open('IMU.txt', 'r')
+    LBL = open('LBL', 'r')
+    DVL = open('DLV.txt', 'r')
+    IMU = open('IMU.txt', 'r')
 
     
     # TODO add the pose variables
@@ -111,12 +111,18 @@ class Kalman_UUV():
     
     
     
-    def Kalmancycle(self, posmeas, varpos, velmeas, varvel):
+    def Kalmancycle(self):
         
-        self.predictPOS()
-        # TODO get stuff from LBL for update
-        self.getLBL()
-        self.updatePOS(posmeas, varpos, velmeas, varvel)
+        i = 0
+        
+        while(i < 50):
+            self.predictPOS()
+    
+            self.updatePOS()
+            
+            i += 1
+            
+        return
     
     def predictPOS(self):
         
@@ -131,7 +137,7 @@ class Kalman_UUV():
     
     
     
-    def updatePOS(self, lblmeas, lblvar, dvlmeas, dvlvar, imumeas, imuvar):
+    def updatePOS(self):
         
         # TODO 
         # ON UPDATE WE GET THE VARIANCE FOR THE MEASUREMENTS AS WELL!!!!
@@ -196,25 +202,47 @@ class Kalman_UUV():
         return 
     
     
-    
+    def get_pos(self):
+        position = self.LBL.readline().split(" ")
+        theta = self.IMU.readline()
+        
+        return [position[0], position[1], theta]
     
     # get reading from DVL
     # provisionally, read from file DVL.txt
     def get_speed(self):
-        return self.DVL.readline()
+        speed = self.DVL.readline().split(" ")
+        omega = self.IMU.readline()
         
-    def get_accelvar(self):
-        return
+        return [speed[0], speed[1], omega]
+    
+    def get_posvar(self):
+        position = self.LBL.readline().split(" ")
+        theta = self.IMU.readline()
         
+        return [position[0], position[1], theta]
+
+    def get_speedvar(self):
+        speed = self.DVL.readline().split(" ")
+        omega = self.IMU.readline()
+        
+        return [speed[0], speed[1], omega]
+    
     # get reading from IMU
     # provisionally, read from file IMU.txt
     def get_accel(self):
-        return self.IMU.readline()
-    
-    def get_pos(self):
-        return
+        accel = self.IMU.readline().split(" ")
+
+        return [accel[0], accel[1], accel[2]]
+        
+    def get_accelvar(self):
+        accel = self.IMU.readline().split(" ")
+
+        return [accel[0], accel[1]]
+        
     
     def get_dt(self):
-        return
+        return 0.1
 
 filter = Kalman_UUV()
+filter.Kalmancycle()

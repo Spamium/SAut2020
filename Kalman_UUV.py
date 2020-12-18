@@ -136,21 +136,28 @@ class Kalman_UUV():
         # TODO 
         # ON UPDATE WE GET THE VARIANCE FOR THE MEASUREMENTS AS WELL!!!!
         
-        posx = lblmeas[0]
-        posy = lblmeas[1]
-        theta = imumeas[0]
+        posmeas = self.get_pos()
+        velmeas = self.get_speed()
+        posvar = self.get_posvar()
+        velvar = self.get_velvar()
         
-        velx = dvlmeas[0]
-        vely = dvlmeas[1]
-        omega = imumeas[1]
         
-        posvarx = lblvar[0]
-        posvary = lblvar[1]
-        vartheta = imuvar[0]
         
-        velvarx = dvlvar[0]
-        velvary = dvlvar[1]
-        varomega = imuvar[1] 
+        posx = posmeas[0]
+        posy = posmeas[1]
+        theta = posmeas[2]
+        
+        velx = velmeas[0]
+        vely = velmeas[1]
+        omega = velmeas[2]
+        
+        posvarx = posvar[0]
+        posvary = posvar[1]
+        vartheta = posvar[2]
+        
+        velvarx = velvar[0]
+        velvary = velvar[1]
+        varomega = velvar[2] 
         
         # Vector medido
         meas = np.array([[posx],

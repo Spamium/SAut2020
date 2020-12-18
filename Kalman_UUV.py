@@ -32,8 +32,11 @@ import numpy as np
 class Kalman_UUV():
     
     LBL = open('LBL', 'r')
+    LBLvar = open('LBLvar', 'r')
     DVL = open('DLV.txt', 'r')
+    DVLvar = open('DLVvar.txt', 'r')
     IMU = open('IMU.txt', 'r')
+    IMUvar = open('IMUvar.txt', 'r')
 
     
     # TODO add the pose variables
@@ -114,8 +117,8 @@ class Kalman_UUV():
     def Kalmancycle(self):
         
         i = 0
-        
-        while(i < 50):
+        # TODO REMOVE THIS
+        while(i < 10):
             self.predictPOS()
     
             self.updatePOS()
@@ -204,7 +207,7 @@ class Kalman_UUV():
     
     def get_pos(self):
         position = self.LBL.readline().split(" ")
-        theta = self.IMU.readline()
+        theta = self.IMU.readline().split(" ")[0]
         
         return [position[0], position[1], theta]
     
@@ -212,7 +215,7 @@ class Kalman_UUV():
     # provisionally, read from file DVL.txt
     def get_speed(self):
         speed = self.DVL.readline().split(" ")
-        omega = self.IMU.readline()
+        omega = self.IMU.readline().split(" ")[3]
         
         return [speed[0], speed[1], omega]
     
@@ -224,7 +227,7 @@ class Kalman_UUV():
 
     def get_speedvar(self):
         speed = self.DVL.readline().split(" ")
-        omega = self.IMU.readline()
+        omega = self.IMU.readline().split(" ")
         
         return [speed[0], speed[1], omega]
     

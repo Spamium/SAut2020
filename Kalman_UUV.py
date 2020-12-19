@@ -87,12 +87,12 @@ class Kalman_UUV():
         # Numero de linhas em H é o número de variáveis que medimos:
         #   - x, y, theta, velx, vely, omega
         # Numero de colunas em H é o número de componentes em X
-        self.H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 1, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 1, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 1, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 1, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 1, 0, 0, 0]])
+        self.H = np.array([[1, 0, 0, 0, 0, 0],
+                           [0, 1, 0, 0, 0, 0],
+                           [0, 0, 1, 0, 0, 0],
+                           [0, 0, 0, 1, 0, 0],
+                           [0, 0, 0, 0, 1, 0],
+                           [0, 0, 0, 0, 0, 1]])
         
         self.Q = np.array([[axvar, 0, 0],
                                   [0, ayvar, 0]
